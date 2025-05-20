@@ -1,0 +1,46 @@
+[project]
+name = "reloj_checador_v3"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  "mediapipe==0.10.20",
+  "cvzone==1.6.1",
+  "deepface==0.0.93",  
+  "flatbuffers==24.12.23",
+  "flet==0.25.2",
+  "gast==0.6.0",
+  "gdown==5.2.0",
+  "keras==3.7.0",  
+  "mtcnn==1.0.0",
+  "mysql-connector==2.2.9",
+  "numpy==1.26.4",
+  "opencv-contrib-python==4.10.0.84",
+  "opencv-python==4.10.0.84",
+  "pandas==2.2.3",
+  "pillow==11.1.0",
+  "playsound3==2.5.2",
+  "retina-face==0.0.17",
+  "tensorflow==2.18.0",
+  "tf_keras==2.18.0"
+]
+
+
+[tool.flet]
+# org name in reverse domain name notation, e.g. "com.mycompany".
+# Combined with project.name to build bundle ID for iOS and Android apps
+org = "com.mycompany"
+
+# project display name that is used as an app title on Android and iOS home screens,
+# shown in window titles and about app dialogs on desktop.
+product = "reloj_checador_v3"
+
+# company name to display in about app dialogs
+company = "Flet"
+
+# copyright text to display in about app dialogs
+copyright = "Copyright (C) 2024 by Flet"
+
+[tool.flet.app]
+path = "src"
