@@ -18,40 +18,6 @@ from playsound3 import playsound #el sonido en la aplicacion
 from deepface import DeepFace #reconocimiento facial
 from cvzone.FaceMeshModule import FaceMeshDetector#wrap de mediapipe
 from usuarios_flet_dao import UsuariosFletDao #"gestion de bd 
-import serial # para conectar arduino mediante el puerto serial
-
-#librerias para conectar con java 
-import jpype
-import jpype.imports
-# Pull in types
-from jpype.types import *
-
-#inicializa la maquina virtual de java
-jpype.startJVM(classpath = ["C:\\Users\\Sistemas2\\Documents\\NetBeansProjects\\prueba_puente_python\\dist\\prueba_puente_python.jar"])
-
-#importaciones de java 
-# import java
-# import javax
-# from javax.swing import *
-# from java.awt import Window as Windowjv
-# from java.awt import *
-# from java.util import *
-# from java.lang import *
-# from java.lang import *
-
-#llamada de las clases del projecto de java 
-# from prueba_puente_python import SocioHuellaDAO
-# from prueba_puente_python import DigitalPersona
-from prueba_puente_python import ToallasMain
-
-#instancias de las clases del proyecto de java
-# socioHuellaDao=SocioHuellaDAO()
-# dp=DigitalPersona()
-
-#frame para la aplicacion de java 
-# frame = None
-
-
 
 # variable de guarda el estado de la camara
 cap=None
@@ -67,9 +33,6 @@ counter=15
 is_valid_face=False
 # se basa es media pipe y es para tomar la distancia y saber que es un rostro humano
 detector_cvzone=FaceMeshDetector(maxFaces=1)
-
-#variable que nos dictara como sera la validacion si por rostro o huella 
-print_view=1
 
 #busca el path en un build
 def resourse_path(relative_path):
@@ -115,15 +78,12 @@ def main(page: ft.Page):
     #es para mostrar la hora 
     now =lambda:time.strftime("%H:%M:%S",time.localtime())
 
-
-    #bottonsheet componente 
-    bs = ft.Ref[ft.BottomSheet]()
-
     #inicia la camara 
     def init_camara(flag=1):
         global cap,init_video
         #se usa cv2.CAP_DSHOW por que la camara logitech lo necesitaba
-        cap=cv2.VideoCapture(0,cv2.CAP_DSHOW)
+        # cap=cv2.VideoCapture(0,cv2.CAP_DSHOW)
+        cap=cv2.VideoCapture(0)
         #se pone en fullHD
         cap.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT,720)
@@ -269,62 +229,6 @@ def main(page: ft.Page):
         imagen_video.src="images/capture_rostro.png"
         page.update()
 
-    def init_facial():  
-        global id_colaborador,rostro_colaborador
-        page.close(bs.current)
-        image=UsuariosFletDao.get_foto(id_colaborador)
-        if(image[0] is not None):
-            image_ = ImagePil.open(io.BytesIO(image[0])).convert("RGB")
-            rostro_colaborador = np.array(image_)
-            init_camara()                
-        else: 
-            page.snack_bar = ft.SnackBar(content=ft.Text("Empleado con numero "+txt_nomina.value+" no tiene aún foto registrada, se habilita cámara para registrar.",style=ft.TextStyle(size=30,color="#000000")),action="",bgcolor="#F48430",duration=10000)
-            page.snack_bar.open = True
-            page.update()
-            txt_nomina.focus()
-            #se registra el rostro porque no tiene rostro el empleado
-            init_camara(0)
-
-    def init_fingerprint():
-        global id_colaborador
-        page.close(bs.current)
-        # if(frame is None):
-            # Windowjv.System
-
-        # print(toallas_)
-        wind__=ToallasMain(id_colaborador)
-        print(wind__)
-        # if(f1rame is None):
-            # frame=ToallasMain()
-
-        wind__.setVisible(True)
-        clear()
-
-
-        # print(Windowjv.getWindows())
-
-        # huella_=socioHuellaDao.getHuellaService(11499)
-        # print(huella_)
-        # frame.setVisible(True)        
-        # frame.setFocusable(True)
-        # frame.requestFocus()
-        # frame.requestFocusInWindow()
-        # frame.requestFocus(True)
-        # while True:
-            
-        #     activo=dp.getActivo()
-        #     if activo:
-        #         valid=dp.verificarHuella(huella_)
-        #         print("valido")
-        #         print(valid)
-        #         if valid:
-        #             print("es valido")                
-        #             frame.setVisible(False)
-        #         dp.clear()
-
-        #     time.sleep(1)
-
-        
     def buscar(_):
         global id_colaborador,rostro_colaborador,init_video
 
@@ -357,54 +261,27 @@ def main(page: ft.Page):
             id_colaborador=data["id_colaborador"]
             txt_nombre.value="%s %s %s" %(data["apellido_paterno"],data["apellido_materno"],data["nombre"])
             txt_nombre.update()
-            
-            #bottonsheet componente 
-            ft.BottomSheet(
-                ref=bs,
-                on_dismiss=lambda _:print("se cerro"),
-                dismissible=False,
-                content=ft.Container(
-                    width=1300,
-                    height=430,
-                    padding=50,
-                    content=ft.Column(
-                        tight=True,
-                        controls=[
-                            ft.Row(controls=[
-                                # ft.Button(content=ft.Image(src="images/facial-recognition_6877256.png",width=260)),
-                                ft.Button(content=ft.Image(src="images/facial-recognition_6877256.png",width=260),style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),on_click=lambda _:init_facial()),
-                                # ft.Card(content=ft.Image(src="images/facial-recognition_6877256.png",width=260),elevation=4,on_click=init_camara),
-                                ft.Button(content=ft.Image(src="images/fingerprint-scan.png",width=260),style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),on_click=lambda _:init_fingerprint()),
-                            ]),
-                            ft.Row(controls=[
-                                ft.Text("1",size=40,width=260,text_align=ft.TextAlign.CENTER),
-                                ft.Text("2",size=40,width=260,text_align=ft.TextAlign.CENTER),
-                            ]),
-                            ft.Text("Elige como autenticarte! 1- rostro 2- huella",size=20),
-                            # ft.ElevatedButton("Close bottom sheet", on_click=lambda _: page.close(bs)),
-                            ]
-                            ),),)
-            
-            page.open(bs.current)
+        
 
-            # id_colaborador=data["id_colaborador"]
-            # txt_nombre.value="%s %s %s" %(data["apellido_paterno"],data["apellido_materno"],data["nombre"])
-            # txt_nombre.update()
+            id_colaborador=data["id_colaborador"]
+            txt_nombre.value="%s %s %s" %(data["apellido_paterno"],data["apellido_materno"],data["nombre"])
+            txt_nombre.update()
             
-            # image=UsuariosFletDao.get_foto(id_colaborador)
-            # if(image[0] is not None):
-            #     image_ = Image.open(io.BytesIO(image[0])).convert("RGB")
-            #     rostro_colaborador = np.array(image_)
-            #     init_camara()                
-            # else: 
+            image=UsuariosFletDao.get_foto(id_colaborador)
+            if(image[0] is not None):
+                image_ = ImagePil.open(io.BytesIO(image[0])).convert("RGB")
+                rostro_colaborador = np.array(image_)
+                init_camara()                
+            else: 
 
-            #     page.snack_bar = ft.SnackBar(content=ft.Text("Empleado con numero "+txt_nomina.value+" no tiene aún foto registrada, se habilita cámara para registrar.",style=ft.TextStyle(size=30,color="#000000")),action="",bgcolor="#F48430",duration=10000)
+                page.snack_bar = ft.SnackBar(content=ft.Text("Empleado con numero "+txt_nomina.value+" no tiene aún foto registrada, se habilita cámara para registrar.",style=ft.TextStyle(size=30,color="#000000")),action="",bgcolor="#F48430",duration=10000)
 
-            #     page.snack_bar.open = True
-            #     page.update()
-            #     txt_nomina.focus()
-            #     #se registra el rostro porque no tiene rostro el empleado
-            #     init_camara(0)
+                page.snack_bar.open = True
+                page.update()
+                txt_nomina.focus()
+                #se registra el rostro porque no tiene rostro el empleado
+                init_camara(0)
+
         else:
             page.snack_bar = ft.SnackBar(content=ft.Text("No existe empleado con este numero "+txt_nomina.value,style=ft.TextStyle(size=30,color="#000000")),action="",bgcolor="#F50057",duration=10000)
             page.snack_bar.open = True
@@ -480,41 +357,12 @@ def main(page: ft.Page):
     imagen_video=ft.Image(src="images/capture_rostro.png",width=360,height=640,border_radius=10)
     txt_nomina=ft.TextField(hint_text="Numero Empleado",hint_style=ft.TextStyle(size=20),text_align="center",text_size=50,max_length=4,content_padding=ft.Padding(top=2,bottom=2,right=0,left=0),autofocus=True,on_submit=buscar,read_only=True)
     txt_nombre=ft.Text("nombre del colaborador.",theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
-    btn_buscar=ft.ElevatedButton(content=ft.Icon(name=ft.icons.CHECK,size=40),style=ft.ButtonStyle(shape=ft.CircleBorder()),bgcolor=ft.colors.TEAL_ACCENT,color=ft.colors.WHITE,width=90,height=90,on_click=buscar)
+    btn_buscar=ft.ElevatedButton(content=ft.Icon(name=ft.Icons.CHECK,size=40),style=ft.ButtonStyle(shape=ft.CircleBorder()),bgcolor=ft.Colors.TEAL_ACCENT,color=ft.Colors.WHITE,width=90,height=90,on_click=buscar)
 
-    # def validarActivo():
-    #     activo=dp.getActivo()
-    #     if activo:
-    #         valid=dp.verificarHuella(huella_)
-    #         print("valido")
-    #         print(valid)
-    #         if valid:
-    #             print("es valido")
-                
-    #             frame.setVisible(False)
-    #             # frame.dispose()
-    #             # jpype.shutdownJVM()
-    #             # java.lang.System.exit(0)
-
-                
-
-    #         dp.clear()
-
-    # def runClock():
-    #     print("entra a el while")
-    #     while True:
-    #         mytime.value=now()
-    #         mytime.update()
-    #         time.sleep(1)
 
     def on_keyboard(e: ft.KeyboardEvent):
-        print(e)
-        print(bs.current)
-        if((e.key =="Numpad 1" or e.key=="1") and bs.current is not None and bs.current.open):            
-            init_facial()            
-        elif((e.key =="Numpad 2" or e.key=="2") and bs.current is not None and bs.current.open):        
-            init_fingerprint()
-        elif(e.key =="Numpad 1" or e.key=="1"):
+        print(e)    
+        if(e.key =="Numpad 1" or e.key=="1"):
             print("text 1")
             txt_nomina.value="%s%s"%(txt_nomina.value,1)
             txt_nomina.update()
@@ -570,7 +418,7 @@ def main(page: ft.Page):
                         ft.Container(content=
                     ft.Column(
                         [
-                        ft.Card(content=ft.Container(content=imagen_video),color=ft.colors.BLUE_GREY),
+                        ft.Card(content=ft.Container(content=imagen_video),color=ft.Colors.BLUE_GREY),
                         ft.Row([
                         ]),
                         
@@ -579,7 +427,7 @@ def main(page: ft.Page):
                 ),padding=5)),
             ft.Column([
                 mytime,
-                ft.Container(width=300,height=60,bgcolor=ft.colors.BLUE_GREY_100,content=txt_nombre,alignment=ft.alignment.center,border_radius=10,padding=5),
+                ft.Container(width=300,height=60,bgcolor=ft.Colors.BLUE_GREY_100,content=txt_nombre,alignment=ft.alignment.center,border_radius=10,padding=5),
                 ft.Container(width=300,content=txt_nomina),
             ft.Row(
             controls=[
@@ -605,7 +453,7 @@ def main(page: ft.Page):
             ft.Row(
                  controls=[
                     ft.ElevatedButton(text="0",style=ft.ButtonStyle(shape=ft.CircleBorder(),text_style=ft.TextStyle(size=40)),width=90,height=90,on_click=lambda _:setTextInput(0)),
-                    ft.ElevatedButton(content=ft.Icon(name=ft.icons.CLEAR,size=40),style=ft.ButtonStyle(shape=ft.CircleBorder()),bgcolor=ft.colors.RED_ACCENT,color=ft.colors.WHITE,width=90,height=90,on_click=lambda _:threading.Thread(target=clear).start()),
+                    ft.ElevatedButton(content=ft.Icon(name=ft.Icons.CLEAR,size=40),style=ft.ButtonStyle(shape=ft.CircleBorder()),bgcolor=ft.Colors.RED_ACCENT,color=ft.Colors.WHITE,width=90,height=90,on_click=lambda _:threading.Thread(target=clear).start()),
                     btn_buscar,
                 ]
             )
